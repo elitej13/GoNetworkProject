@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-
-	"github.com/gorilla/websocket"
 )
 
 type position struct {
@@ -11,7 +9,7 @@ type position struct {
 	Y int32 `json:"y"`
 }
 
-var positions = make(map[*websocket.Conn]position)
+// var positions = make(map[*websocket.Conn]position)
 
 func handlePosition(pos position) {
 	for client := range clients {
@@ -21,6 +19,5 @@ func handlePosition(pos position) {
 			client.Close()
 			delete(clients, client)
 		}
-
 	}
 }

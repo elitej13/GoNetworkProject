@@ -38,7 +38,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 	clients[ws] = true
-	positions[ws] = position{X: 100, Y: 100}
+	// positions[ws] = position{X: 100, Y: 100}
 
 	for {
 		var msg message
