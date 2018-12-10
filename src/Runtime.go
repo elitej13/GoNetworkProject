@@ -38,13 +38,10 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer ws.Close()
 	clients[ws] = true
-
 	for {
 		var msg Message
-
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Error reading json: %v", err)
