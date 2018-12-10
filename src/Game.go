@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+
+	termbox "github.com/nsf/termbox-go"
 )
 
 type position struct {
@@ -18,6 +20,32 @@ func handlePosition(pos position) {
 			log.Printf("Error writing json in game: %v", err)
 			client.Close()
 			delete(clients, client)
+		}
+	}
+}
+
+func handleInput() {
+	var pos = position{X: 100, Y: 100}
+	for {
+		// if any of the keyboard events are captured
+		select {
+		case ev := <-events:
+			if ev.Type == termbox.EventKey {
+
+				if ev.Key == termbox.KeyArrowUp {
+					pos.Y += 10
+				}
+				if ev.Key == termbox.KeyArrowDown {
+					pos.Y -= 10
+				}
+				if ev.Key == termbox.KeyArrowRight {
+					pos.X += 10
+				}
+				if ev.Key == termbox.KeyArrowLeft {
+					pos.X -= 10
+				}
+			}
+
 		}
 	}
 }
