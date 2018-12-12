@@ -2,10 +2,12 @@ new Vue({
     el: '#game',
 
     data: {
-        ws: null
+        ws: null,
+        down: false
     },
     
     created: function() {
+        var self = this;
         this.ws = new WebSocket('ws://' + window.location.host + '/game-ws');
         this.ws.addEventListener('message', 
             function(e) {
@@ -15,7 +17,26 @@ new Vue({
                 player.style.left = pos.x + "px";
                 player.style.top = pos.y + "px"; 
             });
-    },
-
-    methods: { }
+        document.addEventListener('mousedown',
+            function(e) {
+                self.down = true;
+            });
+        document.addEventListener('mouseup',
+            function(e) {
+                self.down = false;
+            });   
+        document.addEventListener('mousemove',
+            function(e) {
+                if(self.down) {
+                    self.ws.send(
+                        JSON.stringify(
+                            {
+                                x: event.clientX,
+                                y: event.clientY 
+                            }
+                        )
+                    );
+                }
+            }, false);
+    }
 });

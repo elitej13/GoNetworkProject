@@ -2,20 +2,20 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Simple Chat | Jason Quinn & Josh Hess</title>
+        <title>Simple Game | Jason & Josh</title>
         <link rel="stylesheet" href="/style.css">
     </head>
     <body>
         <header>
             <nav>
                 <div class="nav-wrapper">
-                    <a href="/" class="brand-logo right">Chat | Jason Quinn & Josh Hess</a>
+                    <a class="title">Game Client v9001</a>
                 </div>
             </nav>
         </header>
         <main>
-            <div>
-                <img id="player" style="position: absolute; top: 200px; left: 100px" src="circle.png" width=64 height=64>
+            <div id="main-body" v-on:click="send">
+                <img id="player" src="circle.png" width=64 height=64>
             </div>
         </main>
     </body>

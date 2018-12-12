@@ -9,9 +9,34 @@ main {
     flex: 1 0 auto;
 }
 
-#chat-messages {
+.messages {
+    position: relative;
+    border-radius: .4em;
+    min-height: 3vh;
+    margin-bottom: 5px;
+    padding-top: 0.25em;
+}
+
+#message-window {
+    width: 99%;
+    height: 2vh;
+}
+
+#chat-window {
     min-height: 10vh;
     height: 60vh;
     width: 100%;
     overflow-y: scroll;
+}
+
+#player {
+    position: absolute; 
+    top: 100px; 
+    left: 100px;
+}
+
+#main-body {
+    display:block;
+    width:1000px;
+    height:1000px;
 }

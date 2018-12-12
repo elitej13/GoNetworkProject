@@ -16,8 +16,10 @@ type position struct {
 
 var gameClients = make(map[*websocket.Conn]bool)
 var gameBroadcast = make(chan position)
+var positionRequest = make(chan position)
 var gameUpgrader = websocket.Upgrader{}
 
+//Handles sending the position to all the clients
 func handlePosition() {
 	for {
 		//Gets the position from the other thread
@@ -38,24 +40,28 @@ func handlePosition() {
 		}
 	}
 }
+
+//Keeps the websocket alive and listen for position requests
 func listenForGameMessages(ws *websocket.Conn) {
 	for {
-		var msg position
-		err := ws.ReadJSON(&msg)
+		var pos position
+		//Reads in the position from the client
+		err := ws.ReadJSON(&pos)
 		if err != nil {
 			log.Printf("Error reading json:\n%v", err)
 			delete(gameClients, ws)
 			break
 		}
-		gameBroadcast <- msg
+		log.Printf("Position requested at (%d, %d)", pos.X, pos.Y)
+		positionRequest <- pos
 	}
 }
 
 // Handles a new game client connection
 func handleGameConnections(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Incoming game client.")
+	log.Printf("Incoming game client!")
 	//Upgrades the socket to be a websocket
-	ws, err := gameUpgrader.Upgrade(w, r, nil)
+	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,8 +77,13 @@ func handleInput() {
 	pos := position{X: 100, Y: 100}
 	go handlePosition()
 	for {
-		//Listens for any of the keyboard events that are captured by termbox
 		select {
+		//Listens for any position request made by a client
+		case req := <-positionRequest:
+			pos.X = req.X
+			pos.Y = req.Y
+			gameBroadcast <- pos
+		//Listens for any of the keyboard events that are captured by termbox
 		case ev := <-events:
 			if ev.Type == termbox.EventKey {
 				if ev.Key == termbox.KeyArrowUp {
@@ -92,7 +103,6 @@ func handleInput() {
 					gameBroadcast <- pos
 				}
 			}
-
 		}
 	}
 }
