@@ -13,41 +13,43 @@ type message struct {
 	Message  string `json:"message"`
 }
 
-var clients = make(map[*websocket.Conn]bool)
-var broadcast = make(chan message)
-var upgrader = websocket.Upgrader{}
+var chatClients = make(map[*websocket.Conn]bool)
+var chatBroadcast = make(chan message)
+var chatUpgrader = websocket.Upgrader{}
 
 func handleMessages() {
 	for {
-		msg := <-broadcast
-		for client := range clients {
+		msg := <-chatBroadcast
+		for client := range chatClients {
 			err := client.WriteJSON(msg)
 			if err != nil {
 				log.Printf("Error writing json in chat: %v", err)
 				client.Close()
-				delete(clients, client)
+				delete(chatClients, client)
 			}
 		}
 	}
 }
 
-func handleConnections(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ws.Close()
-	clients[ws] = true
-	// positions[ws] = position{X: 100, Y: 100}
-
+func listenForChatMessages(ws *websocket.Conn) {
 	for {
 		var msg message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Error reading json: %v", err)
-			delete(clients, ws)
+			delete(chatClients, ws)
 			break
 		}
-		broadcast <- msg
+		chatBroadcast <- msg
 	}
+}
+
+func handleChatConnections(w http.ResponseWriter, r *http.Request) {
+	ws, err := chatUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ws.Close()
+	chatClients[ws] = true
+	listenForChatMessages(ws)
 }

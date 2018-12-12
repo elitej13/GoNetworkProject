@@ -1,5 +1,5 @@
 new Vue({
-    el: '#app',
+    el: '#chat',
 
     data: {
         ws: null,           // Our websocket
@@ -10,17 +10,18 @@ new Vue({
         joined: false       // True if email and username have been filled in
     },
     created: function() {
-        var self = this;
-        this.ws = new WebSocket('ws://' + window.location.host + '/ws');
-        this.ws.addEventListener('message', function(e) {
-            var msg = JSON.parse(e.data);
-            self.chatContent += '<div class="chip">'
-            + msg.username + ': '
-            + msg.message
-            + '</div>' + '<br/>';
-            var element = document.getElementById('chat-messages');
-            element.scrollTop = element.scrollHeight;
-        });
+        this.ws = new WebSocket('ws://' + window.location.host + '/chat-ws');
+        this.ws.addEventListener('message', 
+            function(e) {
+                var msg = JSON.parse(e.data);
+                console.log(msg.message);
+                this.chatContent += '<div class="chip">'
+                + msg.username + ': '
+                + msg.message
+                + '</div>' + '<br/>';
+                var element = document.getElementById('chat-messages');
+                element.scrollTop = element.scrollHeight;
+            });
     },
     methods: {
         send: function () {
